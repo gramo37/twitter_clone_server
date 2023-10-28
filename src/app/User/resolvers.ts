@@ -11,11 +11,11 @@ const queries = {
       const { data } = await axios.get(googleAuthURL.toString(), {
         responseType: "json",
       });
-  
+
       const { email, picture, given_name, family_name } = data;
-  
+
       let user = await prisma.user.findUnique({ where: { email } });
-  
+
       if (!user) {
         // Create User
         user = await prisma.user.create({
@@ -27,18 +27,35 @@ const queries = {
           },
         });
       }
-  
-      if (!user) return("User not found");
-  
+
+      if (!user) return "User not found";
+
       const JWTtoken = await JWTToken.generate_jwt({
         id: user.id,
         email: user.email,
       });
-  
+
       return JWTtoken;
     } catch (error) {
       console.log(error);
-      return "Something went wrong"
+      return "Something went wrong";
+    }
+  },
+  getUserInfo: async (parent: any, args: any, context: any) => {
+    try {
+      const { auth } = context;
+      if(!auth) return "Kindly Login!"
+      console.log(auth, auth.split(" ")[1])
+      const user = await JWTToken.decode_jwt(auth.split(" ")[1]);
+      if (!user || typeof user === "string")
+        return("Wrong or expired token recieved!");
+      let userInfo = await prisma.user.findUnique({
+        where: { email: user.email },
+      });
+      return userInfo;
+    } catch (error) {
+      console.log(error);
+      return "not ok";
     }
   },
 };
