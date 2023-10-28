@@ -44,18 +44,17 @@ const queries = {
   getUserInfo: async (parent: any, args: any, context: any) => {
     try {
       const { auth } = context;
-      if(!auth) return "Kindly Login!"
-      console.log(auth, auth.split(" ")[1])
+      if (!auth) throw new Error("Kindly Login!");
       const user = await JWTToken.decode_jwt(auth.split(" ")[1]);
       if (!user || typeof user === "string")
-        return("Wrong or expired token recieved!");
+        throw new Error("Wrong or expired token recieved!");
       let userInfo = await prisma.user.findUnique({
         where: { email: user.email },
       });
       return userInfo;
     } catch (error) {
-      console.log(error);
-      return "not ok";
+      // console.log(error);
+      return null;
     }
   },
 };
