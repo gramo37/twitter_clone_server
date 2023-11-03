@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -16,6 +17,22 @@ model User {
   lastName String?
   email String @unique
   profileImageURL String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tweets Tweet[]
+}
+
+model Tweet {
+  id String @id @default(cuid())
+  content String
+  imageURL String?
+
+  author User @relation(fields: [authorId], references: [id])
+  authorId String
+
+  @@index([authorId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,6 +1,7 @@
 import axios from "axios";
 import JWTToken from "../../services/jwt_token.service";
 import { prisma } from "../../clients/db";
+import { User } from "@prisma/client";
 
 const queries = {
   verifyGoogleToken: async (parent: any, { token }: { token: string }) => {
@@ -53,10 +54,18 @@ const queries = {
       });
       return userInfo;
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       return null;
     }
   },
 };
 
-export const resolvers = { queries };
+const extraResolvers = {
+  User: {
+    tweets: (parent: User) => {
+      return prisma.tweet.findMany({ where: { authorId: parent.id } });
+    },
+  },
+};
+
+export const resolvers = { queries, extraResolvers };

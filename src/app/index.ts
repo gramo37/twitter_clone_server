@@ -1,21 +1,35 @@
 import { ApolloServer } from "@apollo/server";
-import { queries, types, resolvers } from "./User";
+import { User } from "./User";
+import { Tweet } from "./Tweet";
 
 export async function initServer() {
   const typeDefs = `
-  ${types}
+  ${User.types}
+  ${Tweet.types}
   type Query {
-    ${queries}
-  }`;
+    ${User.queries}
+    ${Tweet.queries}
+  }
+  
+  type Mutation {
+    ${Tweet.mutations}
+  }
+  `;
   const rs = {
     Query: {
-      ...resolvers.queries,
+      ...User.resolvers.queries,
+      ...Tweet.resolvers.queries
     },
+    Mutation: {
+      ...Tweet.resolvers.mutations,
+    },
+    ...Tweet.resolvers.extraResolvers,
+    ...User.resolvers.extraResolvers
   };
 
   const server = new ApolloServer({
     typeDefs,
-    resolvers: rs
+    resolvers: rs,
   });
 
   return server;
