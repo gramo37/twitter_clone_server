@@ -58,6 +58,16 @@ const queries = {
       return null;
     }
   },
+  getUserInfoById: async (parent: any, { id }: any, context: any) => {
+    try {
+      if(!id) throw new Error("Please provide a id")
+      const user = prisma.user.findUnique({ where: { id } })
+      if(!user) throw new Error("User not found.")
+      return user
+    } catch (error) {
+      throw new Error("Internal Server Error")
+    }
+  }
 };
 
 const extraResolvers = {
